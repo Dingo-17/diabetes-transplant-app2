@@ -2,10 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>It works!</title>
+  <title>Failed Transplant Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      color: #333;
+    }
+    .section {
+      margin-top: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Success 🎉</h1>
-  <p>Your GitHub Pages site is now live.</p>
+  <h1>Failed Transplant Evaluation</h1>
+
+  <div class="section">
+    <label>Time of failure relative to transplant (in years):</label><br>
+    <input type="number" id="timeOffset" min="0" required>
+    <button onclick="evaluateFailure()">Submit</button>
+  </div>
+
+  <div class="section hidden" id="lateOptions">
+    <p>Is planned retransplantation within 1 year?</p>
+    <button onclick="retransplant('yes')">Yes</button>
+    <button onclick="retransplant('no')">No</button>
+  </div>
+
+  <div class="section hidden" id="urineSection">
+    <label>Enter patient urine output in mL/day:</label><br>
+    <input type="number" id="urineOutput">
+    <button onclick="evaluateUrine()">Submit</button>
+  </div>
+
+  <div class="section">
+    <h3>Advice:</h3>
+    <textarea id="resultBox" readonly></textarea>
+  </div>
+
+  <script>
+    function evaluateFailure() {
+      const time = parseFloat(document.getElementById('timeOffset').value);
+      const resultBox = document.getElementById('resultBox');
+      document.getElementById('urineSection').classList.add('hidden');
+      resultBox.value = '';
+
+      if (time < 1) {
+        resultBox.value =
+          "Early Graft Failure\n" +
+          "→ Preemptive transplant nephrectomy and complete withdrawal of immunosuppression at the time of nephrectomy.";
+      } else {
+        resultBox.value = "Late Graft Failure";
+        document.getElementById('lateOptions').classList.remove('hidden');
+      }
+    }
+
+    function retransplant(answer) {
+      const resultBox = document.getElementById('resultBox');
+      document.getElementById('lateOptions').classList.add('hidden');
+
+      if (answer === "yes") {
+        resultBox.value +=
+          "\n→ Discontinue antimetabolite (mycophenolate or azathioprine)\n" +
+          "→ Reduce calcineurin inhibitor (tacrolimus or cyclosporine) to once daily and continue until retransplant\n" +
+          "→ Continue prednisone 5 mg/day until retransplant";
+      } else {
+        document.getElementById('urineSection').classList.remove('hidden');
+      }
+    }
+
+    function evaluateUrine() {
+      const urine = parseFloat(document.getElementById('urineOutput').value);
+      const resultBox = document.getElementById('resultBox');
+      const oliguric = urine < 400;
+
+      document.getElementById('urineSection').classList.add('hidden');
+
+      if (oliguric) {
+        resultBox.value +=
+          "\n→ Discontinue antimetabolite (mycophenolate or azathioprine)\n" +
+          "→ Reduce calcineurin inhibitor (tacrolimus or cyclosporine) to once daily and taper over 3–6 months\n" +
+          "→ Taper prednisone by 1 mg/month until discontinued";
+      } else {
+        resultBox.value +=
+          "\n→ Discontinue antimetabolite (mycophenolate or azathioprine)\n" +
+          "→ Reduce calcineurin inhibitor (tacrolimus or cyclosporine) to once daily and taper slowly over 6–12 months\n" +
+          "→ Taper prednisone by 1 mg/month until discontinued";
+      }
+
+      resultBox.value += "\n\nEnd.";
+    }
+  </script>
 </body>
 </html>
